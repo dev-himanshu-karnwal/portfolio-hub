@@ -1,0 +1,128 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function role() {
+      return userDoc().role;
+    }
+
+    function isAdmin() {
+      return signedIn() && role() == 'admin';
+    }
+
+    function isEditor() {
+      return signedIn() && role() == 'editor';
+    }
+
+    function isEditorOrAdmin() {
+      return isAdmin() || isEditor();
+    }
+
+    function isValidVisibility(v) {
+      return v in ['public', 'proposal_only', 'internal'];
+    }
+
+    function isValidProjectTypes(types) {
+      return types is list
+        && types.size() > 0
+        && types.hasOnly([
+          'Full Stack',
+          'Frontend Only',
+          'Backend Only',
+          'Chrome Extension',
+          'Mobile App',
+          'Desktop App',
+          'API Development',
+          'Database Design',
+          'System Integration',
+          'DevOps',
+          'Cloud Services',
+          'Security',
+          'Figma',
+          'UI-UX',
+          'Landing Page',
+          'Case Study',
+          'Shopify',
+          'WooCommerce',
+          'WordPress'
+        ]);
+    }
+
+    function isValidRole(r) {
+      return r in ['admin', 'editor', 'viewer'];
+    }
+
+    function projectKeysOk() {
+      return request.resource.data.keys().hasAll([
+        'name',
+        'description',
+        'tech_stack',
+        'domain',
+        'project_type',
+        'visibility',
+        'has_live_url',
+        'has_figma',
+        'has_case_study',
+        'tags',
+        'created_by',
+        'created_at',
+        'updated_at'
+      ]);
+    }
+
+    match /users/{userId} {
+      // Authenticated users can read all user profiles (admin panel + role checks)
+      allow read: if signedIn();
+
+      // Only admins create/update/delete user docs (manual invite workflow)
+      allow create: if isAdmin()
+        && request.resource.data.uid == userId
+        && request.resource.data.email is string
+        && request.resource.data.displayName is string
+        && isValidRole(request.resource.data.role);
+
+      allow update: if isAdmin()
+        && request.resource.data.uid == userId
+        && isValidRole(request.resource.data.role);
+
+      allow delete: if isAdmin();
+    }
+
+    match /projects/{projectId} {
+      allow read: if signedIn();
+
+      allow create: if isEditorOrAdmin()
+        && projectKeysOk()
+        && request.resource.data.created_by == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.description is string
+        && request.resource.data.tech_stack is list
+        && request.resource.data.domain is list
+        && request.resource.data.tags is list
+        && isValidProjectTypes(request.resource.data.project_type)
+        && isValidVisibility(request.resource.data.visibility);
+
+      // Editors update own projects; admins update any
+      allow update: if isAdmin()
+        || (
+          isEditor()
+          && resource.data.created_by == request.auth.uid
+          && request.resource.data.created_by == resource.data.created_by
+          && isValidProjectTypes(request.resource.data.project_type)
+          && isValidVisibility(request.resource.data.visibility)
+        );
+
+      // Full delete is admin-only
+      allow delete: if isAdmin();
+    }
+  }
+}
