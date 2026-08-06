@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { ChevronDown, Filter, Search } from 'lucide-react'
 import { PROJECT_TYPES, VISIBILITY_LABELS, VISIBILITY_OPTIONS } from '../../lib/constants'
 import type { FilterState, ProjectType, Visibility } from '../../types'
@@ -12,6 +12,8 @@ export function FilterPanel({
   onToggleDomain,
   onToggleType,
   onToggleVisibility,
+  variant = 'sidebar',
+  headerAction,
 }: {
   filters: FilterState
   techOptions: string[]
@@ -20,6 +22,8 @@ export function FilterPanel({
   onToggleDomain: (v: string) => void
   onToggleType: (v: ProjectType) => void
   onToggleVisibility: (v: Visibility) => void
+  variant?: 'sidebar' | 'drawer'
+  headerAction?: ReactNode
 }) {
   const activeTotal =
     filters.techStack.length +
@@ -27,21 +31,27 @@ export function FilterPanel({
     filters.projectType.length +
     filters.visibility.length
 
+  const shell =
+    variant === 'drawer'
+      ? 'flex h-full min-h-0 flex-col overflow-hidden bg-surface'
+      : 'panel sticky top-[4.5rem] flex max-h-[calc(100vh-6rem)] flex-col overflow-hidden lg:top-20'
+
   return (
-    <aside className="panel sticky top-[4.5rem] flex max-h-[calc(100vh-6rem)] flex-col overflow-hidden lg:top-20">
+    <aside className={shell}>
       <div className="flex items-center justify-between border-b border-line/70 px-4 py-3">
         <div className="flex items-center gap-2">
           <Filter size={15} className="text-accent" />
           <span className="font-display text-sm font-semibold text-ink">Filters</span>
+          {activeTotal > 0 && (
+            <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-white">
+              {activeTotal}
+            </span>
+          )}
         </div>
-        {activeTotal > 0 && (
-          <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-white">
-            {activeTotal}
-          </span>
-        )}
+        {headerAction}
       </div>
 
-      <div className="scrollbar-thin flex-1 space-y-1 overflow-y-auto p-3">
+      <div className="scrollbar-thin flex-1 space-y-1 overflow-y-auto overscroll-contain p-3">
         <FilterGroup
           title="Tech Stack"
           count={filters.techStack.length}

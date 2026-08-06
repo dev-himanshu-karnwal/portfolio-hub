@@ -38,15 +38,16 @@ export function Modal({
         onClick={onClose}
       />
       <div
-        className={`relative z-10 flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl sm:rounded-2xl border border-line bg-surface shadow-2xl ${
+        className={`relative z-10 flex max-h-[min(92dvh,92vh)] w-full flex-col overflow-hidden rounded-t-2xl border border-line bg-surface shadow-2xl sm:rounded-2xl ${
           wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'
         }`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
       >
-        <div className="flex items-center justify-between border-b border-line px-5 py-4">
-          <h2 id="modal-title" className="font-display text-lg font-semibold text-ink">
+        <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-line sm:hidden" />
+        <div className="flex items-center justify-between border-b border-line px-4 py-3 sm:px-5 sm:py-4">
+          <h2 id="modal-title" className="font-display text-base font-semibold text-ink sm:text-lg">
             {title}
           </h2>
           <button
@@ -58,7 +59,9 @@ export function Modal({
             <X size={18} />
           </button>
         </div>
-        <div className="overflow-y-auto px-5 py-4">{children}</div>
+        <div className="overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-5">
+          {children}
+        </div>
       </div>
     </div>
   )

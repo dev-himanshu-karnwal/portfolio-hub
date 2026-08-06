@@ -71,25 +71,25 @@ export function ProjectDetailPanel({
           aria-label="Close panel"
           onClick={onClose}
         />
-        <aside className="relative z-10 flex h-full w-full max-w-lg flex-col bg-surface shadow-2xl animate-slide-in-right">
+        <aside className="relative z-10 flex h-full w-full max-w-lg flex-col bg-surface shadow-2xl animate-slide-in-right pt-[env(safe-area-inset-top)]">
           {/* Hero header */}
-          <div className={`relative shrink-0 bg-gradient-to-br ${gradient} px-5 pt-5 pb-6`}>
+          <div className={`relative shrink-0 bg-gradient-to-br ${gradient} px-4 pt-4 pb-5 sm:px-5 sm:pt-5 sm:pb-6`}>
             <button
               type="button"
               onClick={onClose}
-              className="absolute top-4 right-4 rounded-lg bg-white/10 p-1.5 text-white/80 backdrop-blur-sm transition hover:bg-white/20 hover:text-white"
+              className="absolute top-3 right-3 rounded-lg bg-white/10 p-1.5 text-white/80 backdrop-blur-sm transition hover:bg-white/20 hover:text-white sm:top-4 sm:right-4"
             >
               <X size={18} />
             </button>
-            <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/15 text-lg font-bold text-white backdrop-blur-sm">
+            <div className="flex items-start gap-3 pr-10 sm:gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 text-base font-bold text-white backdrop-blur-sm sm:h-14 sm:w-14 sm:text-lg">
                 {projectInitials(project.name)}
               </div>
               <div className="min-w-0 pt-1">
                 <Badge tone={visibilityTone(project.visibility)} className="mb-2">
                   {VISIBILITY_LABELS[project.visibility]}
                 </Badge>
-                <h2 className="font-display text-xl font-bold text-white">{project.name}</h2>
+                <h2 className="font-display text-lg font-bold text-white sm:text-xl">{project.name}</h2>
                 <p className="mt-0.5 text-sm text-white/70">
                   {project.project_type.join(' · ') || '—'}
                 </p>
@@ -97,8 +97,8 @@ export function ProjectDetailPanel({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto scrollbar-thin">
-            <div className="space-y-6 p-5">
+          <div className="flex-1 overflow-y-auto overscroll-contain scrollbar-thin">
+            <div className="space-y-6 p-4 sm:p-5">
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink-soft">
                 {project.description}
               </p>
@@ -186,17 +186,18 @@ export function ProjectDetailPanel({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 border-t border-line/70 bg-canvas/30 px-5 py-4">
+          <div className="flex flex-wrap items-center gap-2 border-t border-line/70 bg-canvas/30 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5 sm:py-4">
             <Button
               variant={isSelected(project.id) ? 'primary' : 'outline'}
               size="sm"
+              className="min-h-10 flex-1 sm:min-h-0 sm:flex-none"
               onClick={() => toggle(project.id)}
             >
               <Check size={14} />
               {isSelected(project.id) ? 'In proposal' : 'Add to proposal'}
             </Button>
             {canEditThis && (
-              <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+              <Button variant="outline" size="sm" className="min-h-10 sm:min-h-0" onClick={() => setEditing(true)}>
                 <Pencil size={14} /> Edit
               </Button>
             )}
@@ -204,7 +205,7 @@ export function ProjectDetailPanel({
               <Button
                 variant="ghost"
                 size="sm"
-                className="ml-auto text-danger hover:bg-danger-soft"
+                className="min-h-10 text-danger hover:bg-danger-soft sm:ml-auto sm:min-h-0"
                 onClick={() => setConfirmDelete(true)}
               >
                 <Trash2 size={14} /> Delete

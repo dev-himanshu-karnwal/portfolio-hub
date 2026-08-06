@@ -78,12 +78,12 @@ export function LoginPage() {
 
         <form
           onSubmit={(e) => void onSubmit(e)}
-          className="rounded-2xl border border-line bg-surface p-6 shadow-xl shadow-ink/5"
+          className="rounded-2xl border border-line bg-surface p-5 shadow-xl shadow-ink/5 sm:p-6"
         >
           <div className="mb-4 flex rounded-lg border border-line bg-canvas p-1">
             <button
               type="button"
-              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
+              className={`flex-1 rounded-md px-2 py-2 text-xs font-medium transition sm:px-3 sm:text-sm ${
                 mode === 'password' ? 'bg-surface text-ink shadow-sm' : 'text-muted'
               }`}
               onClick={() => setMode('password')}
@@ -92,7 +92,7 @@ export function LoginPage() {
             </button>
             <button
               type="button"
-              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
+              className={`flex-1 rounded-md px-2 py-2 text-xs font-medium transition sm:px-3 sm:text-sm ${
                 mode === 'magic' ? 'bg-surface text-ink shadow-sm' : 'text-muted'
               }`}
               onClick={() => setMode('magic')}

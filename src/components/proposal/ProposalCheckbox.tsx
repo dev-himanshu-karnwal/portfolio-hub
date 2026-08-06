@@ -27,7 +27,7 @@ export function ProposalCheckbox({
       onChange={onChange}
       title={title}
       aria-label={title}
-      className={`h-4 w-4 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-2 focus:ring-accent/25 focus:ring-offset-0 ${className}`}
+      className={`h-5 w-5 shrink-0 cursor-pointer rounded border-line text-accent focus:ring-2 focus:ring-accent/25 focus:ring-offset-0 sm:h-4 sm:w-4 ${className}`}
     />
   )
 }

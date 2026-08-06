@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { LayoutGrid, List, Plus, SlidersHorizontal } from 'lucide-react'
+import { LayoutGrid, List, Plus, SlidersHorizontal, X } from 'lucide-react'
 import { useProjects } from '../contexts/ProjectsContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useUrlFilters } from '../hooks/useUrlFilters'
@@ -34,7 +34,7 @@ export function HomePage() {
 
   const [searchParams, setSearchParams] = useSearchParams()
   const [selected, setSelected] = useState<Project | null>(null)
-  const [showFilters, setShowFilters] = useState(true)
+  const [showFilters, setShowFilters] = useState(false)
   const [creating, setCreating] = useState(false)
   const [saving, setSaving] = useState(false)
 
@@ -46,6 +46,20 @@ export function HomePage() {
       setSearchParams(next, { replace: true })
     }
   }, [searchParams, setSearchParams, canEdit])
+
+  useEffect(() => {
+    if (!showFilters) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowFilters(false)
+    }
+    document.addEventListener('keydown', onKey)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prev
+    }
+  }, [showFilters])
 
   const facets = useMemo(() => collectFacetValues(projects), [projects])
 
@@ -70,15 +84,25 @@ export function HomePage() {
     }
   }
 
+  const filterProps = {
+    filters,
+    techOptions: facets.techStack,
+    domainOptions: facets.domain,
+    onToggleTech: toggleTech,
+    onToggleDomain: toggleDomain,
+    onToggleType: toggleProjectType,
+    onToggleVisibility: toggleVisibility,
+  }
+
   return (
-    <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:py-8">
+    <main className="mx-auto max-w-[1600px] px-3 py-4 sm:px-6 sm:py-6 lg:py-8">
       {/* Page header */}
-      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl lg:text-4xl">
             Projects
           </h1>
-          <p className="mt-1.5 max-w-lg text-sm leading-relaxed text-muted">
+          <p className="mt-1 max-w-lg text-sm leading-relaxed text-muted sm:mt-1.5">
             Browse and filter past work for proposals and client demos.
           </p>
         </div>
@@ -87,7 +111,7 @@ export function HomePage() {
             variant="outline"
             size="sm"
             className="lg:hidden"
-            onClick={() => setShowFilters((v) => !v)}
+            onClick={() => setShowFilters(true)}
           >
             <SlidersHorizontal size={14} />
             Filters{activeCount > 0 ? ` (${activeCount})` : ''}
@@ -96,36 +120,40 @@ export function HomePage() {
             <button
               type="button"
               onClick={() => setView('grid')}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+              className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition sm:px-3 ${
                 filters.view === 'grid'
                   ? 'bg-ink text-white shadow-sm'
                   : 'text-muted hover:text-ink'
               }`}
             >
-              <LayoutGrid size={14} /> Grid
+              <LayoutGrid size={14} />
+              <span className="hidden sm:inline">Grid</span>
             </button>
             <button
               type="button"
               onClick={() => setView('table')}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+              className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition sm:px-3 ${
                 filters.view === 'table'
                   ? 'bg-ink text-white shadow-sm'
                   : 'text-muted hover:text-ink'
               }`}
             >
-              <List size={14} /> Table
+              <List size={14} />
+              <span className="hidden sm:inline">Table</span>
             </button>
           </div>
           {canEdit && (
             <Button size="sm" className="shadow-sm" onClick={() => setCreating(true)}>
-              <Plus size={14} /> Add Project
+              <Plus size={14} />
+              <span className="sm:hidden">Add</span>
+              <span className="hidden sm:inline">Add Project</span>
             </Button>
           )}
         </div>
       </div>
 
       {/* Search + results bar */}
-      <div className="panel mb-5 px-4 py-3">
+      <div className="panel mb-4 px-3 py-3 sm:mb-5 sm:px-4">
         <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-4">
           <div className="min-w-0 flex-1">
             <SearchBar value={filters.search} onChange={setSearch} />
@@ -153,19 +181,11 @@ export function HomePage() {
 
       {/* Main content */}
       <div className="grid gap-5 lg:grid-cols-[280px_1fr]">
-        <div className={showFilters ? 'block animate-fade-in' : 'hidden lg:block'}>
-          <FilterPanel
-            filters={filters}
-            techOptions={facets.techStack}
-            domainOptions={facets.domain}
-            onToggleTech={toggleTech}
-            onToggleDomain={toggleDomain}
-            onToggleType={toggleProjectType}
-            onToggleVisibility={toggleVisibility}
-          />
+        <div className="hidden lg:block">
+          <FilterPanel {...filterProps} />
         </div>
 
-        <div className="min-w-0 pb-28">
+        <div className="min-w-0 pb-[calc(7rem+env(safe-area-inset-bottom))]">
           {loading && projects.length === 0 ? (
             <div className="panel px-6 py-20 text-center">
               <div className="mx-auto mb-3 h-8 w-8 animate-pulse rounded-full bg-accent/20" />
@@ -182,6 +202,45 @@ export function HomePage() {
           )}
         </div>
       </div>
+
+      {/* Mobile filter drawer */}
+      {showFilters && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
+            aria-label="Close filters"
+            onClick={() => setShowFilters(false)}
+          />
+          <div
+            className="relative z-10 flex max-h-[min(90dvh,40rem)] flex-col overflow-hidden rounded-t-2xl border border-line/80 bg-surface shadow-2xl animate-fade-in"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Filters"
+          >
+            <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-line" />
+            <FilterPanel
+              {...filterProps}
+              variant="drawer"
+              headerAction={
+                <button
+                  type="button"
+                  onClick={() => setShowFilters(false)}
+                  className="rounded-lg p-1.5 text-muted transition hover:bg-canvas hover:text-ink"
+                  aria-label="Close filters"
+                >
+                  <X size={18} />
+                </button>
+              }
+            />
+            <div className="shrink-0 border-t border-line/70 bg-surface p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+              <Button className="w-full" onClick={() => setShowFilters(false)}>
+                Show {filtered.length} result{filtered.length === 1 ? '' : 's'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {selected && (
         <ProjectDetailPanel project={selected} onClose={() => setSelected(null)} />

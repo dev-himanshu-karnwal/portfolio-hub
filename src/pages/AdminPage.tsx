@@ -75,8 +75,8 @@ export function AdminPage() {
     'w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20'
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <div className="mb-6">
+    <main className="mx-auto max-w-4xl px-3 py-5 sm:px-6 sm:py-8">
+      <div className="mb-5 sm:mb-6">
         <h1 className="font-display text-2xl font-bold text-ink">Admin</h1>
         <p className="mt-1 text-sm text-muted">
           Manage teammate roles. Create the Auth user in Firebase Console first, then add their
@@ -94,55 +94,92 @@ export function AdminPage() {
         {loading ? (
           <div className="px-5 py-10 text-center text-muted">Loading users…</div>
         ) : (
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-line bg-canvas/80 text-[11px] tracking-wider text-muted uppercase">
-              <tr>
-                <th className="px-4 py-3 font-semibold">Name</th>
-                <th className="px-4 py-3 font-semibold">Email</th>
-                <th className="px-4 py-3 font-semibold">Role</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Mobile cards */}
+            <ul className="divide-y divide-line/70 sm:hidden">
               {users.map((u) => (
-                <tr key={u.uid} className="border-b border-line/70">
-                  <td className="px-4 py-3 font-medium text-ink">
-                    {u.displayName || '—'}
+                <li key={u.uid} className="space-y-2 px-4 py-3.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-ink">{u.displayName || '—'}</span>
                     {u.uid === profile?.uid && (
-                      <Badge tone="demo" className="ml-2">
-                        You
-                      </Badge>
+                      <Badge tone="demo">You</Badge>
                     )}
-                  </td>
-                  <td className="px-4 py-3 text-muted">{u.email}</td>
-                  <td className="px-4 py-3">
-                    <select
-                      className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm outline-none focus:border-accent"
-                      value={u.role}
-                      disabled={saving === u.uid || u.uid === profile?.uid}
-                      onChange={(e) => void changeRole(u.uid, e.target.value as UserRole)}
-                      title={
-                        u.uid === profile?.uid
-                          ? 'You cannot change your own role here'
-                          : undefined
-                      }
-                    >
-                      {(Object.keys(ROLE_LABELS) as UserRole[]).map((r) => (
-                        <option key={r} value={r}>
-                          {ROLE_LABELS[r]}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                </tr>
+                  </div>
+                  <div className="break-all text-sm text-muted">{u.email}</div>
+                  <select
+                    className="w-full rounded-lg border border-line bg-surface px-2.5 py-2 text-sm outline-none focus:border-accent"
+                    value={u.role}
+                    disabled={saving === u.uid || u.uid === profile?.uid}
+                    onChange={(e) => void changeRole(u.uid, e.target.value as UserRole)}
+                    title={
+                      u.uid === profile?.uid
+                        ? 'You cannot change your own role here'
+                        : undefined
+                    }
+                  >
+                    {(Object.keys(ROLE_LABELS) as UserRole[]).map((r) => (
+                      <option key={r} value={r}>
+                        {ROLE_LABELS[r]}
+                      </option>
+                    ))}
+                  </select>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+
+            {/* Desktop table */}
+            <div className="hidden overflow-x-auto sm:block">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b border-line bg-canvas/80 text-[11px] tracking-wider text-muted uppercase">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">Name</th>
+                    <th className="px-4 py-3 font-semibold">Email</th>
+                    <th className="px-4 py-3 font-semibold">Role</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((u) => (
+                    <tr key={u.uid} className="border-b border-line/70">
+                      <td className="px-4 py-3 font-medium text-ink">
+                        {u.displayName || '—'}
+                        {u.uid === profile?.uid && (
+                          <Badge tone="demo" className="ml-2">
+                            You
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-muted">{u.email}</td>
+                      <td className="px-4 py-3">
+                        <select
+                          className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm outline-none focus:border-accent"
+                          value={u.role}
+                          disabled={saving === u.uid || u.uid === profile?.uid}
+                          onChange={(e) => void changeRole(u.uid, e.target.value as UserRole)}
+                          title={
+                            u.uid === profile?.uid
+                              ? 'You cannot change your own role here'
+                              : undefined
+                          }
+                        >
+                          {(Object.keys(ROLE_LABELS) as UserRole[]).map((r) => (
+                            <option key={r} value={r}>
+                              {ROLE_LABELS[r]}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
       <form
         onSubmit={(e) => void onCreate(e)}
-        className="mt-6 space-y-3 rounded-2xl border border-line bg-surface p-5 shadow-sm"
+        className="mt-5 space-y-3 rounded-2xl border border-line bg-surface p-4 shadow-sm sm:mt-6 sm:p-5"
       >
         <h2 className="font-display text-base font-semibold text-ink">Add user profile</h2>
         <p className="text-sm text-muted">

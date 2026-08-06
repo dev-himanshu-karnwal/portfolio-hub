@@ -17,7 +17,7 @@ function NavLink({
   return (
     <Link
       to={to}
-      className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors sm:px-3 ${
         active
           ? "bg-accent/10 text-accent"
           : "text-muted hover:bg-canvas hover:text-ink"
@@ -44,13 +44,13 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line/60 glass">
-      <div className="mx-auto flex max-w-[1600px] items-center gap-4 px-4 py-2.5 sm:px-6">
-        <Link to="/" className="flex items-center gap-3 shrink-0 group">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-ink to-ink-soft text-white shadow-sm transition group-hover:shadow-md">
+      <div className="mx-auto flex max-w-[1600px] items-center gap-2 px-3 py-2.5 sm:gap-4 sm:px-6">
+        <Link to="/" className="flex min-w-0 items-center gap-2.5 shrink-0 group sm:gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-ink to-ink-soft text-white shadow-sm transition group-hover:shadow-md sm:h-10 sm:w-10">
             <FolderKanban size={18} />
           </span>
-          <div className="leading-tight">
-            <div className="font-display text-base font-bold tracking-tight text-ink">
+          <div className="min-w-0 leading-tight">
+            <div className="font-display text-sm font-bold tracking-tight text-ink sm:text-base">
               Portfolio Hub
             </div>
             <div className="hidden text-[11px] text-muted sm:block">
@@ -59,7 +59,7 @@ export function Header() {
           </div>
         </Link>
 
-        <nav className="ml-auto flex items-center gap-1 sm:gap-1.5">
+        <nav className="ml-auto flex items-center gap-0.5 sm:gap-1.5">
           <NavLink
             to="/"
             icon={<LayoutGrid size={15} />}

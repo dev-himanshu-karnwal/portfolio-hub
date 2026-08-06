@@ -222,11 +222,11 @@ export function ProjectForm({
         </div>
       )}
 
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onCancel}>
+      <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+        <Button type="button" variant="outline" className="min-h-11 sm:min-h-0" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" className="min-h-11 sm:min-h-0" disabled={submitting}>
           {submitting ? 'Saving…' : initial ? 'Save changes' : 'Create project'}
         </Button>
       </div>

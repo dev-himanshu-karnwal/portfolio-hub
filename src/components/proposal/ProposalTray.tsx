@@ -24,7 +24,7 @@ export function ProposalTray() {
 
   return (
     <>
-      <div className="fixed right-4 bottom-4 z-30 w-[min(100%-2rem,24rem)] overflow-hidden rounded-2xl border border-line/80 bg-surface shadow-2xl animate-fade-in">
+      <div className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 w-auto overflow-hidden rounded-2xl border border-line/80 bg-surface shadow-2xl animate-fade-in sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[min(100%-2rem,24rem)]">
         <button
           type="button"
           className="flex w-full items-center justify-between gap-3 bg-gradient-to-r from-ink to-ink-soft px-4 py-3.5 text-left text-white"
@@ -212,13 +212,14 @@ function ExportDialog({
         </div>
       </fieldset>
 
-      <div className="flex flex-wrap gap-2">
-        <Button disabled={!canExport} onClick={() => void doCopy()}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+        <Button disabled={!canExport} className="min-h-11 sm:min-h-0" onClick={() => void doCopy()}>
           <ClipboardCopy size={14} /> Copy to clipboard
         </Button>
         <Button
           variant="outline"
           disabled={!canExport}
+          className="min-h-11 sm:min-h-0"
           onClick={() => doDownload('txt')}
         >
           <Download size={14} /> .txt
@@ -226,6 +227,7 @@ function ExportDialog({
         <Button
           variant="outline"
           disabled={!canExport}
+          className="min-h-11 sm:min-h-0"
           onClick={() => doDownload('md')}
         >
           <FileText size={14} /> .md

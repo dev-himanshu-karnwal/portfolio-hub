@@ -31,8 +31,8 @@ export function ActiveFilterChips({
   if (chips.length === 0) return null
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-line/60 bg-surface/80 px-3 py-2">
-      <span className="text-xs font-medium text-muted">Active:</span>
+    <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-line/60 pt-2.5 sm:gap-2">
+      <span className="w-full text-xs font-medium text-muted sm:w-auto">Active:</span>
       {chips.map((c) => (
         <Chip key={`${c.kind}-${c.value ?? c.label}`} active onRemove={() => onRemove(c.kind, c.value)}>
           {c.label}

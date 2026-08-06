@@ -33,20 +33,29 @@ a, button {
     background-color: var(--color-canvas);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     min-height: 100vh;
+    min-height: 100dvh;
     background:
       radial-gradient(ellipse 90% 60% at 0% -5%, rgba(219, 234, 254, 0.7) 0%, transparent 50%),
       radial-gradient(ellipse 70% 50% at 100% 0%, rgba(204, 251, 241, 0.6) 0%, transparent 45%),
       radial-gradient(ellipse 50% 40% at 50% 100%, rgba(226, 232, 240, 0.5) 0%, transparent 50%),
       linear-gradient(180deg, var(--color-canvas) 0%, var(--color-canvas-deep) 100%);
-    background-attachment: fixed;
+    background-attachment: scroll;
+  }
+
+  @media (min-width: 1024px) {
+    body {
+      background-attachment: fixed;
+    }
   }
 
   #root {
     min-height: 100vh;
+    min-height: 100dvh;
   }
 
   ::selection {
@@ -126,3 +135,13 @@ a, button {
     animation: fade-in 0.2s ease-out;
   }
 }
+
+/* Prevent iOS Safari zoom on focus for form controls under 16px */
+@media (max-width: 639.98px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
