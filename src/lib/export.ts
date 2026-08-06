@@ -25,10 +25,6 @@ function joinList(values: string[]): string {
   return values.join(', ') || '—'
 }
 
-function oneLiner(description: string): string {
-  return description.split('\n')[0] || description
-}
-
 function projectLines(
   p: Project,
   fields: Set<ExportFieldId>,
@@ -43,8 +39,8 @@ function projectLines(
     if (style === 'md') lines.push('')
   }
 
-  if (fields.has('description')) {
-    lines.push(oneLiner(p.description))
+  if (fields.has('description') && p.description.trim()) {
+    lines.push(p.description.trim())
     if (style === 'md') lines.push('')
   }
 
