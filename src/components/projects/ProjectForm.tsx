@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react'
-import type { Project, ProjectInput } from '../../types'
+import { PROJECT_TYPES, VISIBILITY_OPTIONS, VISIBILITY_LABELS } from '../../lib/constants'
+import type { Project, ProjectInput, ProjectType, Visibility } from '../../types'
 import { Button } from '../ui/Button'
+import { Chip } from '../ui/Badge'
 import { TagInput } from '../ui/TagInput'
 
 const empty: ProjectInput = {
@@ -11,7 +13,7 @@ const empty: ProjectInput = {
   tech_stack: [],
   domain: [],
   project_type: [],
-  visibility: [],
+  visibility: 'public',
   case_study_url: null,
   tags: [],
   notes: null,
@@ -46,11 +48,27 @@ export function ProjectForm({
   })
   const [error, setError] = useState<string | null>(null)
 
+  function toggleType(type: ProjectType) {
+    setForm((f) => {
+      const has = f.project_type.includes(type)
+      return {
+        ...f,
+        project_type: has
+          ? f.project_type.filter((t) => t !== type)
+          : [...f.project_type, type],
+      }
+    })
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
     if (!form.name.trim()) {
       setError('Name is required')
+      return
+    }
+    if (form.project_type.length === 0) {
+      setError('Select at least one project type')
       return
     }
     try {
@@ -128,22 +146,37 @@ export function ProjectForm({
         />
       </label>
 
-      <label className="block">
-        <span className="mb-1 block text-sm font-medium">Project type</span>
-        <TagInput
-          values={form.project_type}
-          onChange={(project_type) => setForm((f) => ({ ...f, project_type }))}
-          placeholder="Type and press Enter"
-        />
-      </label>
+      <div>
+        <span className="mb-1.5 block text-sm font-medium">Project type</span>
+        <div className="flex flex-wrap gap-1.5">
+          {PROJECT_TYPES.map((t) => (
+            <Chip
+              key={t}
+              active={form.project_type.includes(t)}
+              onClick={() => toggleType(t)}
+            >
+              {t}
+            </Chip>
+          ))}
+        </div>
+        <p className="mt-1.5 text-xs text-muted">Select one or more</p>
+      </div>
 
       <label className="block">
         <span className="mb-1 block text-sm font-medium">Visibility</span>
-        <TagInput
-          values={form.visibility}
-          onChange={(visibility) => setForm((f) => ({ ...f, visibility }))}
-          placeholder="Type and press Enter"
-        />
+        <select
+          className={field}
+          value={form.visibility}
+          onChange={(e) =>
+            setForm((f) => ({ ...f, visibility: e.target.value as Visibility }))
+          }
+        >
+          {VISIBILITY_OPTIONS.map((v) => (
+            <option key={v} value={v}>
+              {VISIBILITY_LABELS[v]}
+            </option>
+          ))}
+        </select>
       </label>
 
       <label className="block">

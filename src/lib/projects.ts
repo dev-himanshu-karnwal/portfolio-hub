@@ -12,7 +12,7 @@ import {
   orderBy,
 } from 'firebase/firestore'
 import { db } from './firebase'
-import { normalizeStringList } from './constants'
+import { normalizeProjectTypes } from './constants'
 import type { AppUser, Project, ProjectInput, UserRole } from '../types'
 
 function toDate(value: unknown): Date {
@@ -41,8 +41,8 @@ function mapProject(id: string, data: Record<string, unknown>): Project {
     description: String(data.description ?? ''),
     tech_stack: (data.tech_stack as string[]) ?? [],
     domain: (data.domain as string[]) ?? [],
-    project_type: normalizeStringList(data.project_type, true),
-    visibility: normalizeStringList(data.visibility),
+    project_type: normalizeProjectTypes(data.project_type),
+    visibility: data.visibility as Project['visibility'],
     has_live_url: Boolean(url),
     has_figma: Boolean(figma_url),
     has_case_study: Boolean(case_study_url) || Boolean(data.has_case_study),

@@ -158,8 +158,6 @@ export function HomePage() {
             filters={filters}
             techOptions={facets.techStack}
             domainOptions={facets.domain}
-            typeOptions={facets.projectType}
-            visibilityOptions={facets.visibility}
             onToggleTech={toggleTech}
             onToggleDomain={toggleDomain}
             onToggleType={toggleProjectType}

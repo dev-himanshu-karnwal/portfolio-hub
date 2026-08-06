@@ -1,8 +1,15 @@
 import { ExternalLink, PenTool, FileText } from 'lucide-react'
 import type { Project } from '../../types'
+import { VISIBILITY_LABELS } from '../../lib/constants'
 import { Badge, Chip } from '../ui/Badge'
 import { useProposal } from '../../contexts/ProposalContext'
 import { ProposalCheckbox } from '../proposal/ProposalCheckbox'
+
+function visibilityTone(v: Project['visibility']) {
+  if (v === 'public') return 'success' as const
+  if (v === 'proposal_only') return 'warn' as const
+  return 'danger' as const
+}
 
 export function ProjectCard({
   project,
@@ -37,13 +44,11 @@ export function ProjectCard({
             onClick={() => onOpen(project)}
             className="min-w-0 flex-1 text-left"
           >
-            {project.visibility.length > 0 && (
-              <div className="mb-2 flex flex-wrap gap-1">
-                {project.visibility.map((v) => (
-                  <Chip key={v}>{v}</Chip>
-                ))}
-              </div>
-            )}
+            <div className="mb-2">
+              <Badge tone={visibilityTone(project.visibility)}>
+                {VISIBILITY_LABELS[project.visibility]}
+              </Badge>
+            </div>
             <h3 className="font-display text-base font-semibold text-ink transition group-hover:text-accent">
               {project.name}
             </h3>

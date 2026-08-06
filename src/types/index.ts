@@ -1,3 +1,26 @@
+export type ProjectType =
+  | 'Full Stack'
+  | 'Frontend Only'
+  | 'Backend Only'
+  | 'Figma'
+  | 'UI-UX'
+  | 'Landing Page'
+  | 'Case Study'
+  | 'Shopify'
+  | 'WooCommerce'
+  | 'Chrome Extension'
+  | 'Mobile App'
+  | 'Desktop App'
+  | 'API Development'
+  | 'Database Design'
+  | 'System Integration'
+  | 'DevOps'
+  | 'Cloud Services'
+  | 'Security'
+  | 'WordPress'
+
+export type Visibility = 'public' | 'proposal_only' | 'internal'
+
 export type UserRole = 'admin' | 'editor' | 'viewer'
 
 export interface Project {
@@ -8,8 +31,8 @@ export interface Project {
   description: string
   tech_stack: string[]
   domain: string[]
-  project_type: string[]
-  visibility: string[]
+  project_type: ProjectType[]
+  visibility: Visibility
   has_live_url: boolean
   has_figma: boolean
   has_case_study: boolean
@@ -44,7 +67,7 @@ export interface FilterState {
   search: string
   techStack: string[]
   domain: string[]
-  projectType: string[]
-  visibility: string[]
+  projectType: ProjectType[]
+  visibility: Visibility[]
   view: ViewMode
 }

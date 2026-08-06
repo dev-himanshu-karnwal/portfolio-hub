@@ -1,20 +1,15 @@
 import type { ReactNode } from 'react'
 import { ExternalLink, PenTool, FileText } from 'lucide-react'
 import type { Project } from '../../types'
+import { VISIBILITY_LABELS } from '../../lib/constants'
 import { useProposal } from '../../contexts/ProposalContext'
 import { ProposalCheckbox } from '../proposal/ProposalCheckbox'
 import { useProposalBulk } from '../../hooks/useProposalBulk'
 
-function CellText({
-  value,
-  className = '',
-}: {
-  value: string
-  className?: string
-}) {
+function CellText({ value }: { value: string }) {
   if (!value) return <span className="text-muted">—</span>
   return (
-    <span className={`block truncate text-muted ${className}`} title={value}>
+    <span className="block truncate text-muted" title={value}>
       {value}
     </span>
   )
@@ -108,17 +103,15 @@ export function ProjectTable({
                     />
                   </td>
 
-                  <td className="px-4 py-3">
-                    <div className="min-w-0 max-w-[260px]">
-                      <div className="truncate font-medium text-ink group-hover:text-accent">
-                        {p.name}
-                      </div>
-                      {p.description && (
-                        <div className="mt-0.5 truncate text-xs text-muted">
-                          {p.description}
-                        </div>
-                      )}
+                  <td className="max-w-[260px] px-4 py-3">
+                    <div className="truncate font-medium text-ink group-hover:text-accent">
+                      {p.name}
                     </div>
+                    {p.description && (
+                      <div className="mt-0.5 truncate text-xs text-muted">
+                        {p.description}
+                      </div>
+                    )}
                   </td>
 
                   <td className="max-w-[160px] px-4 py-3">
@@ -134,7 +127,7 @@ export function ProjectTable({
                   </td>
 
                   <td className="max-w-[120px] px-4 py-3">
-                    <CellText value={p.visibility.join(', ')} />
+                    <CellText value={VISIBILITY_LABELS[p.visibility]} />
                   </td>
 
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>

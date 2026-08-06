@@ -9,6 +9,7 @@ import {
   Check,
 } from 'lucide-react'
 import type { Project, ProjectInput } from '../../types'
+import { VISIBILITY_LABELS } from '../../lib/constants'
 import { projectGradient, projectInitials } from '../../lib/avatar'
 import { Badge, Chip } from '../ui/Badge'
 import { Button } from '../ui/Button'
@@ -17,6 +18,12 @@ import { ProjectForm } from './ProjectForm'
 import { useAuth } from '../../contexts/AuthContext'
 import { useProjects } from '../../contexts/ProjectsContext'
 import { useProposal } from '../../contexts/ProposalContext'
+
+function visibilityTone(v: Project['visibility']) {
+  if (v === 'public') return 'success' as const
+  if (v === 'proposal_only') return 'warn' as const
+  return 'danger' as const
+}
 
 export function ProjectDetailPanel({
   project,
@@ -79,13 +86,9 @@ export function ProjectDetailPanel({
                 {projectInitials(project.name)}
               </div>
               <div className="min-w-0 pt-1">
-                {project.visibility.length > 0 && (
-                  <div className="mb-2 flex flex-wrap gap-1">
-                    {project.visibility.map((v) => (
-                      <Chip key={v}>{v}</Chip>
-                    ))}
-                  </div>
-                )}
+                <Badge tone={visibilityTone(project.visibility)} className="mb-2">
+                  {VISIBILITY_LABELS[project.visibility]}
+                </Badge>
                 <h2 className="font-display text-xl font-bold text-white">{project.name}</h2>
                 <p className="mt-0.5 text-sm text-white/70">
                   {project.project_type.join(' · ') || '—'}
@@ -99,28 +102,6 @@ export function ProjectDetailPanel({
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink-soft">
                 {project.description}
               </p>
-
-              <DetailSection title="Project type">
-                <div className="flex flex-wrap gap-1.5">
-                  {project.project_type.map((t) => (
-                    <Chip key={t}>{t}</Chip>
-                  ))}
-                  {project.project_type.length === 0 && (
-                    <span className="text-sm text-muted">None listed</span>
-                  )}
-                </div>
-              </DetailSection>
-
-              <DetailSection title="Visibility">
-                <div className="flex flex-wrap gap-1.5">
-                  {project.visibility.map((v) => (
-                    <Chip key={v}>{v}</Chip>
-                  ))}
-                  {project.visibility.length === 0 && (
-                    <span className="text-sm text-muted">None listed</span>
-                  )}
-                </div>
-              </DetailSection>
 
               <DetailSection title="Tech stack">
                 <div className="flex flex-wrap gap-1.5">

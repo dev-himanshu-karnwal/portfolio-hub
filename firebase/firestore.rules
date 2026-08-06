@@ -26,12 +26,38 @@ service cloud.firestore {
       return isAdmin() || isEditor();
     }
 
-    function isValidRole(r) {
-      return r in ['admin', 'editor', 'viewer'];
+    function isValidVisibility(v) {
+      return v in ['public', 'proposal_only', 'internal'];
     }
 
-    function isStringList(value) {
-      return value is list;
+    function isValidProjectTypes(types) {
+      return types is list
+        && types.size() > 0
+        && types.hasOnly([
+          'Full Stack',
+          'Frontend Only',
+          'Backend Only',
+          'Chrome Extension',
+          'Mobile App',
+          'Desktop App',
+          'API Development',
+          'Database Design',
+          'System Integration',
+          'DevOps',
+          'Cloud Services',
+          'Security',
+          'Figma',
+          'UI-UX',
+          'Landing Page',
+          'Case Study',
+          'Shopify',
+          'WooCommerce',
+          'WordPress'
+        ]);
+    }
+
+    function isValidRole(r) {
+      return r in ['admin', 'editor', 'viewer'];
     }
 
     function projectKeysOk() {
@@ -79,11 +105,11 @@ service cloud.firestore {
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
         && request.resource.data.description is string
-        && isStringList(request.resource.data.tech_stack)
-        && isStringList(request.resource.data.domain)
-        && isStringList(request.resource.data.project_type)
-        && isStringList(request.resource.data.visibility)
-        && isStringList(request.resource.data.tags);
+        && request.resource.data.tech_stack is list
+        && request.resource.data.domain is list
+        && request.resource.data.tags is list
+        && isValidProjectTypes(request.resource.data.project_type)
+        && isValidVisibility(request.resource.data.visibility);
 
       // Editors update own projects; admins update any
       allow update: if isAdmin()
@@ -91,8 +117,8 @@ service cloud.firestore {
           isEditor()
           && resource.data.created_by == request.auth.uid
           && request.resource.data.created_by == resource.data.created_by
-          && isStringList(request.resource.data.project_type)
-          && isStringList(request.resource.data.visibility)
+          && isValidProjectTypes(request.resource.data.project_type)
+          && isValidVisibility(request.resource.data.visibility)
         );
 
       // Full delete is admin-only

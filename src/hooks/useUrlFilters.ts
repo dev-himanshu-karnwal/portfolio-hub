@@ -5,7 +5,7 @@ import {
   filtersFromSearchParams,
   filtersToSearchParams,
 } from '../lib/filters'
-import type { FilterState, ViewMode } from '../types'
+import type { FilterState, ProjectType, ViewMode, Visibility } from '../types'
 
 export function useUrlFilters() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -52,7 +52,7 @@ export function useUrlFilters() {
   )
 
   const toggleProjectType = useCallback(
-    (type: string) =>
+    (type: ProjectType) =>
       setFilters((f) => ({
         ...f,
         projectType: f.projectType.includes(type)
@@ -63,7 +63,7 @@ export function useUrlFilters() {
   )
 
   const toggleVisibility = useCallback(
-    (visibility: string) =>
+    (visibility: Visibility) =>
       setFilters((f) => ({
         ...f,
         visibility: f.visibility.includes(visibility)

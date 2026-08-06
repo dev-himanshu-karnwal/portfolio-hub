@@ -1,4 +1,5 @@
 import type { Project } from '../types'
+import { VISIBILITY_LABELS } from './constants'
 
 export const EXPORT_FIELDS = [
   { id: 'name', label: 'Name', defaultSelected: true },
@@ -63,7 +64,7 @@ function projectLines(
     lines.push(bold('Project type', joinList(p.project_type)))
   }
   if (fields.has('visibility')) {
-    lines.push(bold('Visibility', joinList(p.visibility)))
+    lines.push(bold('Visibility', VISIBILITY_LABELS[p.visibility]))
   }
   if (fields.has('domain')) {
     lines.push(bold('Domains', joinList(p.domain)))

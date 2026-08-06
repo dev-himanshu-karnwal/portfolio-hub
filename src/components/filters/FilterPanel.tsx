@@ -1,14 +1,13 @@
 import { useMemo, useState } from 'react'
 import { ChevronDown, Filter, Search } from 'lucide-react'
-import type { FilterState } from '../../types'
+import { PROJECT_TYPES, VISIBILITY_LABELS, VISIBILITY_OPTIONS } from '../../lib/constants'
+import type { FilterState, ProjectType, Visibility } from '../../types'
 import { Chip } from '../ui/Badge'
 
 export function FilterPanel({
   filters,
   techOptions,
   domainOptions,
-  typeOptions,
-  visibilityOptions,
   onToggleTech,
   onToggleDomain,
   onToggleType,
@@ -17,12 +16,10 @@ export function FilterPanel({
   filters: FilterState
   techOptions: string[]
   domainOptions: string[]
-  typeOptions: string[]
-  visibilityOptions: string[]
   onToggleTech: (v: string) => void
   onToggleDomain: (v: string) => void
-  onToggleType: (v: string) => void
-  onToggleVisibility: (v: string) => void
+  onToggleType: (v: ProjectType) => void
+  onToggleVisibility: (v: Visibility) => void
 }) {
   const activeTotal =
     filters.techStack.length +
@@ -71,29 +68,26 @@ export function FilterPanel({
           title="Project Type"
           count={filters.projectType.length}
           defaultOpen
-          searchable
-          options={typeOptions}
+          options={PROJECT_TYPES}
           active={filters.projectType}
           onToggle={onToggleType}
-          emptyLabel="No project types yet"
         />
 
         <FilterGroup
           title="Visibility"
           count={filters.visibility.length}
           defaultOpen={false}
-          searchable
-          options={visibilityOptions}
+          options={VISIBILITY_OPTIONS}
           active={filters.visibility}
           onToggle={onToggleVisibility}
-          emptyLabel="No visibility tags yet"
+          labelFn={(v) => VISIBILITY_LABELS[v as Visibility]}
         />
       </div>
     </aside>
   )
 }
 
-function FilterGroup({
+function FilterGroup<T extends string>({
   title,
   count,
   defaultOpen = true,
@@ -102,15 +96,17 @@ function FilterGroup({
   active,
   onToggle,
   emptyLabel,
+  labelFn,
 }: {
   title: string
   count: number
   defaultOpen?: boolean
   searchable?: boolean
-  options: readonly string[]
-  active: string[]
-  onToggle: (v: string) => void
+  options: readonly T[]
+  active: T[]
+  onToggle: (v: T) => void
   emptyLabel?: string
+  labelFn?: (v: T) => string
 }) {
   const [open, setOpen] = useState(defaultOpen)
   const [query, setQuery] = useState('')
@@ -118,8 +114,11 @@ function FilterGroup({
   const filtered = useMemo(() => {
     if (!query.trim()) return options
     const q = query.toLowerCase()
-    return options.filter((o) => o.toLowerCase().includes(q))
-  }, [options, query])
+    return options.filter((o) => {
+      const label = labelFn ? labelFn(o) : o
+      return label.toLowerCase().includes(q)
+    })
+  }, [options, query, labelFn])
 
   return (
     <div className="rounded-xl border border-line/60 bg-canvas/30">
@@ -166,7 +165,7 @@ function FilterGroup({
                 active={active.includes(opt)}
                 onClick={() => onToggle(opt)}
               >
-                {opt}
+                {labelFn ? labelFn(opt) : opt}
               </Chip>
             ))}
           </div>
