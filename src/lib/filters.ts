@@ -1,5 +1,5 @@
-import type { FilterState, Project, ViewMode, Visibility } from '../types'
-import { normalizeProjectTypes, VISIBILITY_OPTIONS } from './constants'
+import type { FilterState, Project, ViewMode } from '../types'
+import { normalizeStringList } from './constants'
 
 export const DEFAULT_FILTERS: FilterState = {
   search: '',
@@ -7,7 +7,7 @@ export const DEFAULT_FILTERS: FilterState = {
   domain: [],
   projectType: [],
   visibility: [],
-  view: 'grid',
+  view: 'table',
 }
 
 function tokenize(query: string): string[] {
@@ -27,6 +27,8 @@ function matchesSearch(project: Project, search: string): boolean {
     project.description,
     ...project.tech_stack,
     ...project.domain,
+    ...project.project_type,
+    ...project.visibility,
     ...project.tags,
   ]
     .join(' ')
@@ -35,9 +37,10 @@ function matchesSearch(project: Project, search: string): boolean {
   return tokens.every((token) => haystack.includes(token))
 }
 
-function matchesMultiSelect<T>(selected: T[], values: T[]): boolean {
+function matchesMultiSelect(selected: string[], values: string[]): boolean {
   if (selected.length === 0) return true
-  return selected.some((s) => values.includes(s))
+  const lower = values.map((v) => v.toLowerCase())
+  return selected.some((s) => lower.includes(s.toLowerCase()))
 }
 
 export function filterProjects(projects: Project[], filters: FilterState): Project[] {
@@ -47,7 +50,7 @@ export function filterProjects(projects: Project[], filters: FilterState): Proje
     if (!matchesMultiSelect(filters.techStack, project.tech_stack)) return false
     if (!matchesMultiSelect(filters.domain, project.domain)) return false
     if (!matchesMultiSelect(filters.projectType, project.project_type)) return false
-    if (!matchesMultiSelect(filters.visibility, [project.visibility])) return false
+    if (!matchesMultiSelect(filters.visibility, project.visibility)) return false
 
     return true
   })
@@ -56,16 +59,25 @@ export function filterProjects(projects: Project[], filters: FilterState): Proje
 export function collectFacetValues(projects: Project[]): {
   techStack: string[]
   domain: string[]
+  projectType: string[]
+  visibility: string[]
 } {
   const tech = new Set<string>()
   const domain = new Set<string>()
+  const projectType = new Set<string>()
+  const visibility = new Set<string>()
   for (const p of projects) {
     p.tech_stack.forEach((t) => tech.add(t))
     p.domain.forEach((d) => domain.add(d))
+    p.project_type.forEach((t) => projectType.add(t))
+    p.visibility.forEach((v) => visibility.add(v))
   }
+  const sort = (a: string, b: string) => a.localeCompare(b)
   return {
-    techStack: [...tech].sort((a, b) => a.localeCompare(b)),
-    domain: [...domain].sort((a, b) => a.localeCompare(b)),
+    techStack: [...tech].sort(sort),
+    domain: [...domain].sort(sort),
+    projectType: [...projectType].sort(sort),
+    visibility: [...visibility].sort(sort),
   }
 }
 
@@ -79,20 +91,14 @@ function parseList(value: string | null): string[] {
 
 export function filtersFromSearchParams(params: URLSearchParams): FilterState {
   const viewParam = params.get('view')
-  const view: ViewMode = viewParam === 'table' ? 'table' : 'grid'
-
-  const projectType = normalizeProjectTypes(parseList(params.get('type')))
-
-  const visibility = parseList(params.get('visibility')).filter((v): v is Visibility =>
-    VISIBILITY_OPTIONS.includes(v as Visibility),
-  )
+  const view: ViewMode = viewParam === 'grid' ? 'grid' : 'table'
 
   return {
     search: params.get('q') ?? '',
     techStack: parseList(params.get('tech')),
     domain: parseList(params.get('domain')),
-    projectType,
-    visibility,
+    projectType: normalizeStringList(parseList(params.get('type')), true),
+    visibility: normalizeStringList(parseList(params.get('visibility'))),
     view,
   }
 }

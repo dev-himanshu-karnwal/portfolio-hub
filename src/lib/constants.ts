@@ -1,59 +1,30 @@
-import type { ProjectType, Visibility } from '../types'
-
-export const PROJECT_TYPES: ProjectType[] = [
-  'Full Stack',
-  'Frontend Only',
-  "Backend Only",
-  "Chrome Extension",
-  "Mobile App",
-  "Desktop App",
-  "API Development",
-  "Database Design",
-  "System Integration",
-  "DevOps",
-  "Cloud Services",
-  "Security",
-  'Figma',
-  'UI-UX',
-  'Landing Page',
-  'Case Study',
-  'Shopify',
-  'WooCommerce',
-  'WordPress',
-]
-
 /** Expand legacy combined labels stored before types were split. */
-export const LEGACY_PROJECT_TYPE_MAP: Record<string, ProjectType[]> = {
+export const LEGACY_PROJECT_TYPE_MAP: Record<string, string[]> = {
   'Figma/UI-UX': ['Figma', 'UI-UX'],
   'Shopify/WooCommerce/WordPress': ['Shopify', 'WooCommerce', 'WordPress'],
 }
 
-export function normalizeProjectTypes(raw: unknown): ProjectType[] {
+/** Coerce Firestore/URL values into a free-form string list (no whitelist). */
+export function normalizeStringList(raw: unknown, expandLegacy = false): string[] {
   const values = Array.isArray(raw) ? raw : raw != null && raw !== '' ? [raw] : []
-  const seen = new Set<ProjectType>()
-  const result: ProjectType[] = []
+  const seen = new Set<string>()
+  const result: string[] = []
 
   for (const value of values) {
-    const key = String(value)
-    const expanded = LEGACY_PROJECT_TYPE_MAP[key] ?? [key]
-    for (const type of expanded) {
-      if (!PROJECT_TYPES.includes(type as ProjectType)) continue
-      const typed = type as ProjectType
-      if (seen.has(typed)) continue
-      seen.add(typed)
-      result.push(typed)
+    const key = String(value).trim()
+    if (!key) continue
+    const expanded = expandLegacy ? (LEGACY_PROJECT_TYPE_MAP[key] ?? [key]) : [key]
+    for (const item of expanded) {
+      const normalized = item.trim()
+      if (!normalized) continue
+      const lower = normalized.toLowerCase()
+      if (seen.has(lower)) continue
+      seen.add(lower)
+      result.push(normalized)
     }
   }
 
   return result
-}
-
-export const VISIBILITY_OPTIONS: Visibility[] = ['public', 'proposal_only', 'internal']
-
-export const VISIBILITY_LABELS: Record<Visibility, string> = {
-  public: 'Public',
-  proposal_only: 'Proposal Only',
-  internal: 'Internal',
 }
 
 export const ROLE_LABELS = {

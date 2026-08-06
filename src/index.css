@@ -31,13 +31,16 @@ a, button {
     font-family: var(--font-sans);
     color: var(--color-ink);
     background-color: var(--color-canvas);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     min-height: 100vh;
     background:
-      radial-gradient(ellipse 80% 50% at 10% -10%, #dbeafe 0%, transparent 55%),
-      radial-gradient(ellipse 60% 40% at 100% 0%, #ccfbf1 0%, transparent 50%),
+      radial-gradient(ellipse 90% 60% at 0% -5%, rgba(219, 234, 254, 0.7) 0%, transparent 50%),
+      radial-gradient(ellipse 70% 50% at 100% 0%, rgba(204, 251, 241, 0.6) 0%, transparent 45%),
+      radial-gradient(ellipse 50% 40% at 50% 100%, rgba(226, 232, 240, 0.5) 0%, transparent 50%),
       linear-gradient(180deg, var(--color-canvas) 0%, var(--color-canvas-deep) 100%);
     background-attachment: fixed;
   }
@@ -45,10 +48,81 @@ a, button {
   #root {
     min-height: 100vh;
   }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-accent) 25%, transparent);
+    color: var(--color-ink);
+  }
 }
 
 @layer utilities {
   .font-display {
     font-family: var(--font-display);
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .panel {
+    border-radius: 1rem;
+    border: 1px solid color-mix(in srgb, var(--color-line) 80%, transparent);
+    background: var(--color-surface);
+    box-shadow:
+      0 1px 2px rgba(11, 18, 32, 0.04),
+      0 4px 16px rgba(11, 18, 32, 0.03);
+  }
+
+  .section-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 999px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+      opacity: 0.6;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.25s ease-out;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.2s ease-out;
   }
 }

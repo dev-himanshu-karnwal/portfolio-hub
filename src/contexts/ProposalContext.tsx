@@ -14,6 +14,8 @@ interface ProposalContextValue {
   toggle: (id: string) => void
   add: (id: string) => void
   remove: (id: string) => void
+  selectMany: (ids: string[]) => void
+  deselectMany: (ids: string[]) => void
   clear: () => void
   isSelected: (id: string) => boolean
   count: number
@@ -51,6 +53,22 @@ export function ProposalProvider({
     })
   }, [])
 
+  const selectMany = useCallback((ids: string[]) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      ids.forEach((id) => next.add(id))
+      return next
+    })
+  }, [])
+
+  const deselectMany = useCallback((ids: string[]) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      ids.forEach((id) => next.delete(id))
+      return next
+    })
+  }, [])
+
   const clear = useCallback(() => setSelectedIds(new Set()), [])
 
   const isSelected = useCallback((id: string) => selectedIds.has(id), [selectedIds])
@@ -67,11 +85,13 @@ export function ProposalProvider({
       toggle,
       add,
       remove,
+      selectMany,
+      deselectMany,
       clear,
       isSelected,
       count: selectedIds.size,
     }),
-    [selectedIds, selectedProjects, toggle, add, remove, clear, isSelected],
+    [selectedIds, selectedProjects, toggle, add, remove, selectMany, deselectMany, clear, isSelected],
   )
 
   return <ProposalContext.Provider value={value}>{children}</ProposalContext.Provider>

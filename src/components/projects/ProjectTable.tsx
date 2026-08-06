@@ -1,8 +1,52 @@
-import { ExternalLink, PenTool, FileText, Check } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { ExternalLink, PenTool, FileText } from 'lucide-react'
 import type { Project } from '../../types'
-import { VISIBILITY_LABELS } from '../../lib/constants'
-import { Badge } from '../ui/Badge'
 import { useProposal } from '../../contexts/ProposalContext'
+import { ProposalCheckbox } from '../proposal/ProposalCheckbox'
+import { useProposalBulk } from '../../hooks/useProposalBulk'
+
+function CellText({
+  value,
+  className = '',
+}: {
+  value: string
+  className?: string
+}) {
+  if (!value) return <span className="text-muted">—</span>
+  return (
+    <span className={`block truncate text-muted ${className}`} title={value}>
+      {value}
+    </span>
+  )
+}
+
+function LinkButton({
+  href,
+  icon,
+  label,
+  tone = 'default',
+}: {
+  href: string
+  icon: ReactNode
+  label: string
+  tone?: 'default' | 'accent'
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      title={label}
+      className={`inline-flex h-7 w-7 items-center justify-center rounded-lg border transition ${
+        tone === 'accent'
+          ? 'border-accent/20 bg-accent/5 text-accent hover:bg-accent/10'
+          : 'border-line bg-canvas/50 text-muted hover:border-line hover:bg-canvas hover:text-ink'
+      }`}
+    >
+      {icon}
+    </a>
+  )
+}
 
 export function ProjectTable({
   projects,
@@ -12,109 +56,113 @@ export function ProjectTable({
   onOpen: (project: Project) => void
 }) {
   const { isSelected, toggle } = useProposal()
+  const { allVisibleSelected, someVisibleSelected, toggleSelectAllVisible } =
+    useProposalBulk(projects)
 
   if (projects.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-line bg-surface/60 px-6 py-16 text-center">
+      <div className="panel border-dashed bg-surface/60 px-6 py-20 text-center animate-fade-in">
         <p className="font-display text-lg font-semibold text-ink">No projects match</p>
+        <p className="mt-1 text-sm text-muted">Try adjusting your filters or search.</p>
       </div>
     )
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="border-b border-line bg-canvas/80 text-[11px] tracking-wider text-muted uppercase">
-            <tr>
-              <th className="w-10 px-3 py-3" />
-              <th className="px-3 py-3 font-semibold">Project</th>
-              <th className="px-3 py-3 font-semibold">Type</th>
-              <th className="px-3 py-3 font-semibold">Tech</th>
-              <th className="px-3 py-3 font-semibold">Domain</th>
-              <th className="px-3 py-3 font-semibold">Visibility</th>
-              <th className="px-3 py-3 font-semibold">Links</th>
+    <div className="panel overflow-hidden animate-fade-in">
+      <div className="overflow-x-auto scrollbar-thin">
+        <table className="w-full min-w-[860px] text-left text-sm">
+          <thead className="sticky top-0 z-10 border-b border-line bg-canvas/95 backdrop-blur-sm">
+            <tr className="section-label">
+              <th className="w-12 px-4 py-3">
+                <ProposalCheckbox
+                  checked={allVisibleSelected}
+                  indeterminate={someVisibleSelected}
+                  onChange={toggleSelectAllVisible}
+                  title="Select all visible projects"
+                />
+              </th>
+              <th className="px-4 py-3 font-semibold">Project</th>
+              <th className="px-4 py-3 font-semibold">Type</th>
+              <th className="px-4 py-3 font-semibold">Tech</th>
+              <th className="px-4 py-3 font-semibold">Domain</th>
+              <th className="px-4 py-3 font-semibold">Status</th>
+              <th className="px-4 py-3 font-semibold">Links</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-line/60">
             {projects.map((p) => {
               const selected = isSelected(p.id)
+
               return (
                 <tr
                   key={p.id}
-                  className="border-b border-line/70 hover:bg-canvas/50 cursor-pointer"
+                  className="group cursor-pointer transition-colors hover:bg-accent/[0.03]"
                   onClick={() => onOpen(p)}
                 >
-                  <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      type="button"
-                      onClick={() => toggle(p.id)}
-                      className={`flex h-6 w-6 items-center justify-center rounded border ${
-                        selected
-                          ? 'border-accent bg-accent text-white'
-                          : 'border-line text-muted'
-                      }`}
-                      aria-pressed={selected}
-                    >
-                      <Check size={12} />
-                    </button>
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <ProposalCheckbox
+                      checked={selected}
+                      onChange={() => toggle(p.id)}
+                      title={selected ? 'Remove from proposal' : 'Add to proposal'}
+                    />
                   </td>
-                  <td className="px-3 py-2.5 font-medium text-ink">{p.name}</td>
-                  <td className="px-3 py-2.5 text-muted">
-                    {p.project_type.join(', ') || '—'}
+
+                  <td className="px-4 py-3">
+                    <div className="min-w-0 max-w-[260px]">
+                      <div className="truncate font-medium text-ink group-hover:text-accent">
+                        {p.name}
+                      </div>
+                      {p.description && (
+                        <div className="mt-0.5 truncate text-xs text-muted">
+                          {p.description}
+                        </div>
+                      )}
+                    </div>
                   </td>
-                  <td className="px-3 py-2.5 text-muted">
-                    {p.tech_stack.slice(0, 3).join(', ')}
-                    {p.tech_stack.length > 3 ? '…' : ''}
+
+                  <td className="max-w-[160px] px-4 py-3">
+                    <CellText value={p.project_type.join(', ')} />
                   </td>
-                  <td className="px-3 py-2.5 text-muted">{p.domain.join(', ')}</td>
-                  <td className="px-3 py-2.5">
-                    <Badge
-                      tone={
-                        p.visibility === 'public'
-                          ? 'success'
-                          : p.visibility === 'proposal_only'
-                            ? 'warn'
-                            : 'danger'
-                      }
-                    >
-                      {VISIBILITY_LABELS[p.visibility]}
-                    </Badge>
+
+                  <td className="max-w-[200px] px-4 py-3">
+                    <CellText value={p.tech_stack.join(', ')} />
                   </td>
-                  <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex gap-2">
+
+                  <td className="max-w-[160px] px-4 py-3">
+                    <CellText value={p.domain.join(', ')} />
+                  </td>
+
+                  <td className="max-w-[120px] px-4 py-3">
+                    <CellText value={p.visibility.join(', ')} />
+                  </td>
+
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex gap-1.5">
                       {p.url && (
-                        <a
+                        <LinkButton
                           href={p.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-accent hover:underline"
-                          title="Live URL"
-                        >
-                          <ExternalLink size={14} />
-                        </a>
+                          icon={<ExternalLink size={13} />}
+                          label="Live URL"
+                          tone="accent"
+                        />
                       )}
                       {p.figma_url && (
-                        <a
+                        <LinkButton
                           href={p.figma_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-ink-soft hover:underline"
-                          title="Figma"
-                        >
-                          <PenTool size={14} />
-                        </a>
+                          icon={<PenTool size={13} />}
+                          label="Figma"
+                        />
                       )}
                       {p.case_study_url && (
-                        <a
+                        <LinkButton
                           href={p.case_study_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-ink-soft hover:underline"
-                          title="Case study"
-                        >
-                          <FileText size={14} />
-                        </a>
+                          icon={<FileText size={13} />}
+                          label="Case study"
+                        />
+                      )}
+                      {!p.url && !p.figma_url && !p.case_study_url && (
+                        <span className="text-xs text-muted">—</span>
                       )}
                     </div>
                   </td>

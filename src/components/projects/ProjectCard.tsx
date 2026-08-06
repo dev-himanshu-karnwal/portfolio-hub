@@ -1,14 +1,8 @@
-import { ExternalLink, PenTool, FileText, Check } from 'lucide-react'
+import { ExternalLink, PenTool, FileText } from 'lucide-react'
 import type { Project } from '../../types'
-import { VISIBILITY_LABELS } from '../../lib/constants'
 import { Badge, Chip } from '../ui/Badge'
 import { useProposal } from '../../contexts/ProposalContext'
-
-function visibilityTone(v: Project['visibility']) {
-  if (v === 'public') return 'success' as const
-  if (v === 'proposal_only') return 'warn' as const
-  return 'danger' as const
-}
+import { ProposalCheckbox } from '../proposal/ProposalCheckbox'
 
 export function ProjectCard({
   project,
@@ -22,55 +16,55 @@ export function ProjectCard({
 
   return (
     <article
-      className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-surface shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-        selected ? 'border-accent ring-2 ring-accent/20' : 'border-line'
+      className={`group relative flex flex-col rounded-2xl border bg-surface shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+        selected ? 'border-accent ring-2 ring-accent/20' : 'border-line/80'
       }`}
     >
-      <button
-        type="button"
-        onClick={() => onOpen(project)}
-        className="relative aspect-[16/10] overflow-hidden bg-canvas text-left"
-      >
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-ink-soft to-ink transition duration-300 group-hover:scale-[1.02]">
-          <span className="font-display text-2xl font-bold text-white/80">
-            {project.name.slice(0, 2).toUpperCase()}
-          </span>
-        </div>
-        <div className="absolute top-2 left-2">
-          <Badge tone={visibilityTone(project.visibility)}>
-            {VISIBILITY_LABELS[project.visibility]}
-          </Badge>
-        </div>
-      </button>
-
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex items-start gap-2">
+          <div
+            className="pt-0.5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ProposalCheckbox
+              checked={selected}
+              onChange={() => toggle(project.id)}
+              title={selected ? 'Remove from proposal' : 'Add to proposal'}
+            />
+          </div>
           <button
             type="button"
             onClick={() => onOpen(project)}
-            className="flex-1 text-left"
+            className="min-w-0 flex-1 text-left"
           >
-            <h3 className="font-display text-base font-semibold text-ink group-hover:text-accent">
+            {project.visibility.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-1">
+                {project.visibility.map((v) => (
+                  <Chip key={v}>{v}</Chip>
+                ))}
+              </div>
+            )}
+            <h3 className="font-display text-base font-semibold text-ink transition group-hover:text-accent">
               {project.name}
             </h3>
-            <p className="mt-1 line-clamp-2 text-xs text-muted">{project.description}</p>
-          </button>
-          <button
-            type="button"
-            onClick={() => toggle(project.id)}
-            className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border transition ${
-              selected
-                ? 'border-accent bg-accent text-white'
-                : 'border-line bg-surface text-muted hover:border-accent'
-            }`}
-            title={selected ? 'Remove from proposal' : 'Add to proposal'}
-            aria-pressed={selected}
-          >
-            <Check size={14} />
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted">
+              {project.description}
+            </p>
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-1">
+        {project.project_type.length > 0 && (
+          <div className="flex flex-wrap gap-1 pl-6">
+            {project.project_type.slice(0, 2).map((t) => (
+              <Chip key={t}>{t}</Chip>
+            ))}
+            {project.project_type.length > 2 && (
+              <Chip>+{project.project_type.length - 2}</Chip>
+            )}
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-1 pl-6">
           {project.tech_stack.slice(0, 4).map((t) => (
             <Chip key={t}>{t}</Chip>
           ))}
@@ -79,21 +73,23 @@ export function ProjectCard({
           )}
         </div>
 
-        <div className="flex flex-wrap gap-1">
-          {project.domain.slice(0, 3).map((d) => (
-            <Badge key={d} tone="accent">
-              {d}
-            </Badge>
-          ))}
-        </div>
+        {project.domain.length > 0 && (
+          <div className="flex flex-wrap gap-1 pl-6">
+            {project.domain.slice(0, 3).map((d) => (
+              <Badge key={d} tone="accent">
+                {d}
+              </Badge>
+            ))}
+          </div>
+        )}
 
-        <div className="mt-auto flex items-center gap-2 border-t border-line pt-3">
+        <div className="mt-auto flex items-center gap-2 border-t border-line/70 pt-3 pl-6">
           {project.has_live_url && project.url && (
             <a
               href={project.url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+              className="inline-flex items-center gap-1 rounded-md bg-accent/5 px-2 py-1 text-xs font-medium text-accent transition hover:bg-accent/10"
               onClick={(e) => e.stopPropagation()}
             >
               <ExternalLink size={12} /> Live
@@ -104,7 +100,7 @@ export function ProjectCard({
               href={project.figma_url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-ink-soft hover:underline"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted transition hover:bg-canvas hover:text-ink"
               onClick={(e) => e.stopPropagation()}
             >
               <PenTool size={12} /> Figma
@@ -115,7 +111,7 @@ export function ProjectCard({
               href={project.case_study_url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-ink-soft hover:underline"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted transition hover:bg-canvas hover:text-ink"
               onClick={(e) => e.stopPropagation()}
             >
               <FileText size={12} /> Case Study

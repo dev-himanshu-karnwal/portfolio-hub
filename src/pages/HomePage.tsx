@@ -53,7 +53,6 @@ export function HomePage() {
 
   const activeCount = countActiveFilters(filters)
 
-  // Keep detail panel in sync if project list refreshes
   useEffect(() => {
     if (!selected) return
     const fresh = projects.find((p) => p.id === selected.id)
@@ -72,13 +71,14 @@ export function HomePage() {
   }
 
   return (
-    <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6">
-      <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:py-8">
+      {/* Page header */}
+      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+          <h1 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
             Projects
           </h1>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1.5 max-w-lg text-sm leading-relaxed text-muted">
             Browse and filter past work for proposals and client demos.
           </p>
         </div>
@@ -92,12 +92,14 @@ export function HomePage() {
             <SlidersHorizontal size={14} />
             Filters{activeCount > 0 ? ` (${activeCount})` : ''}
           </Button>
-          <div className="inline-flex rounded-lg border border-line bg-surface p-0.5">
+          <div className="inline-flex rounded-xl border border-line/80 bg-surface p-1 shadow-sm">
             <button
               type="button"
               onClick={() => setView('grid')}
-              className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium ${
-                filters.view === 'grid' ? 'bg-ink text-white' : 'text-muted hover:text-ink'
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                filters.view === 'grid'
+                  ? 'bg-ink text-white shadow-sm'
+                  : 'text-muted hover:text-ink'
               }`}
             >
               <LayoutGrid size={14} /> Grid
@@ -105,51 +107,59 @@ export function HomePage() {
             <button
               type="button"
               onClick={() => setView('table')}
-              className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium ${
-                filters.view === 'table' ? 'bg-ink text-white' : 'text-muted hover:text-ink'
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                filters.view === 'table'
+                  ? 'bg-ink text-white shadow-sm'
+                  : 'text-muted hover:text-ink'
               }`}
             >
               <List size={14} /> Table
             </button>
           </div>
           {canEdit && (
-            <Button size="sm" onClick={() => setCreating(true)}>
+            <Button size="sm" className="shadow-sm" onClick={() => setCreating(true)}>
               <Plus size={14} /> Add Project
             </Button>
           )}
         </div>
       </div>
 
-      <div className="mb-4">
-        <SearchBar value={filters.search} onChange={setSearch} />
-      </div>
-
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      {/* Search + results bar */}
+      <div className="panel mb-5 px-4 py-3">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <SearchBar value={filters.search} onChange={setSearch} />
+          </div>
+          <div className="flex shrink-0 items-baseline gap-1.5 self-end text-sm sm:self-auto">
+            <span className="font-display text-lg font-bold text-ink">{filtered.length}</span>
+            <span className="whitespace-nowrap text-muted">
+              result{filtered.length === 1 ? '' : 's'}
+              {loading ? ' · loading…' : ` of ${projects.length}`}
+            </span>
+          </div>
+        </div>
         <ActiveFilterChips
           filters={filters}
           onRemove={removeChip}
           onClear={clearFilters}
         />
-        <p className="text-sm font-medium text-ink-soft">
-          <span className="font-display text-lg font-bold text-ink">{filtered.length}</span>
-          {' '}
-          result{filtered.length === 1 ? '' : 's'}
-          {loading ? ' · loading…' : ` of ${projects.length}`}
-        </p>
       </div>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-danger/20 bg-danger-soft px-3 py-2 text-sm text-danger">
+        <div className="mb-4 rounded-xl border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger">
           {error}
         </div>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[260px_1fr]">
-        <div className={showFilters ? 'block' : 'hidden lg:block'}>
+      {/* Main content */}
+      <div className="grid gap-5 lg:grid-cols-[280px_1fr]">
+        <div className={showFilters ? 'block animate-fade-in' : 'hidden lg:block'}>
           <FilterPanel
             filters={filters}
             techOptions={facets.techStack}
             domainOptions={facets.domain}
+            typeOptions={facets.projectType}
+            visibilityOptions={facets.visibility}
             onToggleTech={toggleTech}
             onToggleDomain={toggleDomain}
             onToggleType={toggleProjectType}
@@ -159,13 +169,18 @@ export function HomePage() {
 
         <div className="min-w-0 pb-28">
           {loading && projects.length === 0 ? (
-            <div className="rounded-2xl border border-line bg-surface px-6 py-16 text-center text-muted">
-              Loading projects…
+            <div className="panel px-6 py-20 text-center">
+              <div className="mx-auto mb-3 h-8 w-8 animate-pulse rounded-full bg-accent/20" />
+              <p className="text-muted">Loading projects…</p>
             </div>
-          ) : filters.view === 'table' ? (
-            <ProjectTable projects={filtered} onOpen={setSelected} />
           ) : (
-            <ProjectGrid projects={filtered} onOpen={setSelected} />
+            <>
+              {filters.view === 'table' ? (
+                <ProjectTable projects={filtered} onOpen={setSelected} />
+              ) : (
+                <ProjectGrid projects={filtered} onOpen={setSelected} />
+              )}
+            </>
           )}
         </div>
       </div>
